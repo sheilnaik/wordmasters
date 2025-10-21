@@ -328,10 +328,63 @@
     .loading {
       text-align: center;
       color: #2C3E50;
-      font-size: clamp(1.5em, 4vw, 2em);
+      font-size: clamp(1.2em, 3.5vw, 1.6em);
       font-weight: 700;
-      animation: pulse 1.5s ease-in-out infinite;
-      text-shadow: 2px 2px 0px #FFD93D;
+      padding: 40px;
+    }
+
+    .loading-spinner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .loading-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    .loading-dot:nth-child(1) {
+      background: linear-gradient(135deg, #FF6B6B, #FFA07A);
+      animation-delay: -0.32s;
+    }
+
+    .loading-dot:nth-child(2) {
+      background: linear-gradient(135deg, #FFD93D, #FFA07A);
+      animation-delay: -0.16s;
+    }
+
+    .loading-dot:nth-child(3) {
+      background: linear-gradient(135deg, #6BCB77, #4FC3F7);
+      animation-delay: 0s;
+    }
+
+    @keyframes bounce {
+      0%, 80%, 100% {
+        transform: scale(0) translateY(0);
+      }
+      40% {
+        transform: scale(1) translateY(-30px);
+      }
+    }
+
+    .loading-text {
+      font-family: 'Fredoka', cursive;
+      text-shadow: 2px 2px 0px rgba(255, 217, 61, 0.5);
+      animation: fadeInOut 2s ease-in-out infinite;
+    }
+
+    @keyframes fadeInOut {
+      0%, 100% {
+        opacity: 0.5;
+      }
+      50% {
+        opacity: 1;
+      }
     }
 
     .admin-link {
@@ -407,11 +460,16 @@
     </div>
 
     <div class="game-container" id="gameContainer">
-      <div class="loading" id="loading">Loading your challenge...</div>
+      <div class="loading" id="loading">
+        <div class="loading-spinner">
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+        </div>
+        <div class="loading-text">Loading your challenge...</div>
+      </div>
     </div>
   </div>
-
-  <a href="/admin" class="admin-link">⚙️ Admin</a>
 
   <script>
     let score = 0;
@@ -457,7 +515,16 @@
     async function loadQuestion() {
       const gameContainer = document.getElementById('gameContainer');
 
-      gameContainer.innerHTML = '<div class="loading" id="loading">Loading your challenge...</div>';
+      gameContainer.innerHTML = `
+        <div class="loading" id="loading">
+          <div class="loading-spinner">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+          </div>
+          <div class="loading-text">Loading your challenge...</div>
+        </div>
+      `;
 
       try {
         // Get random word
@@ -530,8 +597,30 @@
       if (hintUsed) return;
 
       const hintBox = document.getElementById('hintBox');
-      hintBox.innerHTML = '<div class="hint-box">Loading hint...</div>';
+      const word = currentQuestion.wordData;
 
+      // Show definition immediately
+      let definitionHTML = `<strong>${word.word}</strong> (${word.partOfSpeech}): ${word.definition}`;
+
+      if (word.example) {
+        definitionHTML += `<br><br><em>Example: "${word.example}"</em>`;
+      }
+
+      hintBox.innerHTML = `
+        <div class="hint-box">
+          📖 ${definitionHTML}
+          <div class="loading-spinner" style="margin: 15px 0 10px 0;">
+            <div class="loading-dot" style="width: 12px; height: 12px;"></div>
+            <div class="loading-dot" style="width: 12px; height: 12px;"></div>
+            <div class="loading-dot" style="width: 12px; height: 12px;"></div>
+          </div>
+          <div>Getting a helpful hint...</div>
+        </div>
+      `;
+
+      hintUsed = true;
+
+      // Fetch AI-generated hint
       try {
         const response = await fetch('/api/generate-hint', {
           method: 'POST',
@@ -543,27 +632,50 @@
         });
 
         const data = await response.json();
-        hintBox.innerHTML = `<div class="hint-box">💡 ${data.hint}</div>`;
-        hintUsed = true;
+        hintBox.innerHTML = `
+          <div class="hint-box">
+            📖 ${definitionHTML}
+            <hr style="border: none; border-top: 2px solid #FFD93D; margin: 15px 0;">
+            💡 ${data.hint}
+          </div>
+        `;
       } catch (error) {
         console.error('Error getting hint:', error);
-        hintBox.innerHTML = '<div class="hint-box">Error loading hint.</div>';
+        // Keep just the definition if AI hint fails
+        hintBox.innerHTML = `<div class="hint-box">📖 ${definitionHTML}</div>`;
       }
     }
 
     // Check answer
     async function checkAnswer(selectedAnswer) {
       const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+      const word = currentQuestion.wordData;
+
+      // Build definition display
+      let definitionHTML = `<div style="background: rgba(255, 255, 255, 0.9); border-radius: 12px; padding: 16px; margin: 16px 0; text-align: left; border: 3px solid #FFD93D;">
+        <strong style="color: #2C3E50; font-size: 1.1em;">${word.word}</strong>
+        <span style="color: #666;">(${word.partOfSpeech})</span>
+        <br><br>
+        <span style="color: #2C3E50;">${word.definition}</span>`;
+
+      if (word.example) {
+        definitionHTML += `<br><br><em style="color: #4a5568;">"${word.example}"</em>`;
+      }
+
+      definitionHTML += `</div>`;
 
       if (isCorrect) {
         score += hintUsed ? 5 : 10;
         streak++;
         updateScore();
         createConfetti();
-        showFeedback(true, "Amazing! You're a WordMaster!", currentQuestion.explanation);
+        showFeedback(true, "Amazing! You're a WordMaster!", definitionHTML + currentQuestion.explanation);
       } else {
         streak = 0;
         updateScore();
+
+        // Show loading overlay while generating explanation
+        showLoadingOverlay();
 
         // Get explanation for wrong answer
         try {
@@ -579,10 +691,38 @@
           });
 
           const data = await response.json();
-          showFeedback(false, "Keep learning!", data.explanation);
+          hideLoadingOverlay();
+          showFeedback(false, "Keep learning!", definitionHTML + data.explanation);
         } catch (error) {
-          showFeedback(false, "Keep learning!", `The correct answer was "${currentQuestion.correctAnswer}". ${currentQuestion.explanation}`);
+          hideLoadingOverlay();
+          showFeedback(false, "Keep learning!", definitionHTML + `The correct answer was "${currentQuestion.correctAnswer}". ${currentQuestion.explanation}`);
         }
+      }
+    }
+
+    // Show loading overlay
+    function showLoadingOverlay() {
+      const overlay = document.createElement('div');
+      overlay.id = 'loadingOverlay';
+      overlay.className = 'feedback-overlay';
+      overlay.innerHTML = `
+        <div class="feedback-card" style="background: white;">
+          <div class="loading-spinner" style="margin-bottom: 20px;">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+          </div>
+          <div class="loading-text">Generating explanation...</div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+    }
+
+    // Hide loading overlay
+    function hideLoadingOverlay() {
+      const overlay = document.getElementById('loadingOverlay');
+      if (overlay) {
+        overlay.remove();
       }
     }
 
