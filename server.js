@@ -62,66 +62,6 @@ app.get('/api/words', (req, res) => {
   res.json(words);
 });
 
-// Add a new word
-app.post('/api/words', (req, res) => {
-  const { word, partOfSpeech, definition } = req.body;
-  const newWord = {
-    id: nextId++,
-    word,
-    partOfSpeech,
-    definition
-  };
-  words.push(newWord);
-  saveWords();
-  res.json(newWord);
-});
-
-// Delete a word
-app.delete('/api/words/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  words = words.filter(w => w.id !== id);
-  saveWords();
-  res.json({ success: true });
-});
-
-// Bulk add words
-app.post('/api/words/bulk', (req, res) => {
-  const { wordsList } = req.body;
-
-  if (!Array.isArray(wordsList)) {
-    return res.status(400).json({ error: 'wordsList must be an array' });
-  }
-
-  const addedWords = [];
-  const errors = [];
-
-  wordsList.forEach((item, index) => {
-    if (!item.word || !item.partOfSpeech || !item.definition) {
-      errors.push(`Row ${index + 1}: Missing required fields`);
-      return;
-    }
-
-    const newWord = {
-      id: nextId++,
-      word: item.word.trim(),
-      partOfSpeech: item.partOfSpeech.trim().toLowerCase(),
-      definition: item.definition.trim()
-    };
-
-    words.push(newWord);
-    addedWords.push(newWord);
-  });
-
-  saveWords();
-
-  res.json({
-    success: true,
-    added: addedWords.length,
-    errors: errors.length > 0 ? errors : null,
-    words: addedWords
-  });
-});
-
 // Generate analogy with multiple choice
 app.post('/api/generate-analogy', async (req, res) => {
   try {
@@ -251,12 +191,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-
 app.listen(PORT, () => {
   console.log(`WordMasters app listening on port ${PORT}`);
   console.log(`Game: http://localhost:${PORT}`);
-  console.log(`Admin: http://localhost:${PORT}/admin`);
 });
