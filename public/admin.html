@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WordMasters Admin</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 2.5em;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .nav-links {
+      margin-bottom: 30px;
+    }
+
+    .nav-links a {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      transition: transform 0.2s;
+    }
+
+    .nav-links a:hover {
+      transform: scale(1.05);
+      background: #5568d3;
+    }
+
+    .add-word-form {
+      background: #f8f9ff;
+      padding: 25px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 600;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .words-list {
+      margin-top: 30px;
+    }
+
+    .word-card {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .word-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .word-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 10px;
+    }
+
+    .word-title {
+      font-size: 1.5em;
+      color: #667eea;
+      font-weight: bold;
+    }
+
+    .part-of-speech {
+      display: inline-block;
+      background: #ffd700;
+      color: #333;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: 600;
+      margin-left: 10px;
+    }
+
+    .word-definition {
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .delete-btn {
+      background: #ff4757;
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+
+    .delete-btn:hover {
+      background: #ff3838;
+      box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+    }
+
+    .word-count {
+      background: #ffd700;
+      color: #333;
+      padding: 10px 20px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 2em;
+      }
+
+      .word-header {
+        flex-direction: column;
+      }
+
+      .part-of-speech {
+        margin-left: 0;
+        margin-top: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎓 WordMasters Admin</h1>
+    <p class="subtitle">Manage your vocabulary words</p>
+
+    <div class="nav-links">
+      <a href="/">← Back to Game</a>
+    </div>
+
+    <div class="add-word-form">
+      <h2 style="margin-bottom: 20px; color: #667eea;">Add New Word</h2>
+      <form id="addWordForm">
+        <div class="form-group">
+          <label for="word">Word</label>
+          <input type="text" id="word" required>
+        </div>
+
+        <div class="form-group">
+          <label for="partOfSpeech">Part of Speech</label>
+          <select id="partOfSpeech" required>
+            <option value="">Select...</option>
+            <option value="noun">Noun</option>
+            <option value="verb">Verb</option>
+            <option value="adjective">Adjective</option>
+            <option value="adverb">Adverb</option>
+            <option value="pronoun">Pronoun</option>
+            <option value="preposition">Preposition</option>
+            <option value="conjunction">Conjunction</option>
+            <option value="interjection">Interjection</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="definition">Definition</label>
+          <textarea id="definition" required></textarea>
+        </div>
+
+        <button type="submit">Add Word</button>
+      </form>
+    </div>
+
+    <div class="add-word-form">
+      <h2 style="margin-bottom: 20px; color: #667eea;">Bulk Add Words</h2>
+      <p style="margin-bottom: 15px; color: #666; line-height: 1.6;">
+        Paste your words in the format: <code style="background: #e0e0e0; padding: 2px 6px; border-radius: 4px;">word | part of speech | definition</code><br>
+        One word per line. Example:<br>
+        <code style="background: #e0e0e0; padding: 2px 6px; border-radius: 4px; display: block; margin-top: 5px;">
+          serene | adjective | calm, peaceful, and untroubled<br>
+          contemplate | verb | to think about something deeply
+        </code>
+      </p>
+      <form id="bulkAddForm">
+        <div class="form-group">
+          <label for="bulkWords">Words (one per line)</label>
+          <textarea id="bulkWords" rows="10" placeholder="Enter words in format: word | part of speech | definition"></textarea>
+        </div>
+        <button type="submit">Bulk Add Words</button>
+      </form>
+      <div id="bulkAddResult" style="margin-top: 15px;"></div>
+    </div>
+
+    <div class="words-list">
+      <h2 style="margin-bottom: 20px; color: #667eea;">Word List</h2>
+      <div class="word-count" id="wordCount">Loading...</div>
+      <div id="wordsList"></div>
+    </div>
+  </div>
+
+  <script>
+    // Load words on page load
+    loadWords();
+
+    // Handle form submission
+    document.getElementById('addWordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const word = document.getElementById('word').value;
+      const partOfSpeech = document.getElementById('partOfSpeech').value;
+      const definition = document.getElementById('definition').value;
+
+      try {
+        const response = await fetch('/api/words', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ word, partOfSpeech, definition })
+        });
+
+        if (response.ok) {
+          // Clear form
+          document.getElementById('addWordForm').reset();
+          // Reload words list
+          loadWords();
+        }
+      } catch (error) {
+        console.error('Error adding word:', error);
+        alert('Failed to add word');
+      }
+    });
+
+    // Handle bulk add form submission
+    document.getElementById('bulkAddForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const bulkText = document.getElementById('bulkWords').value;
+      const resultDiv = document.getElementById('bulkAddResult');
+
+      if (!bulkText.trim()) {
+        resultDiv.innerHTML = '<div style="color: #ff4757; font-weight: 600;">Please enter some words</div>';
+        return;
+      }
+
+      // Parse the bulk text
+      const lines = bulkText.trim().split('\n');
+      const wordsList = [];
+      const parseErrors = [];
+
+      lines.forEach((line, index) => {
+        const trimmedLine = line.trim();
+        if (!trimmedLine) return; // Skip empty lines
+
+        const parts = trimmedLine.split('|').map(p => p.trim());
+
+        if (parts.length !== 3) {
+          parseErrors.push(`Line ${index + 1}: Invalid format (expected: word | part of speech | definition)`);
+          return;
+        }
+
+        const [word, partOfSpeech, definition] = parts;
+
+        if (!word || !partOfSpeech || !definition) {
+          parseErrors.push(`Line ${index + 1}: Missing required fields`);
+          return;
+        }
+
+        wordsList.push({ word, partOfSpeech, definition });
+      });
+
+      if (parseErrors.length > 0) {
+        resultDiv.innerHTML = `
+          <div style="color: #ff4757; font-weight: 600;">Parsing Errors:</div>
+          <ul style="margin-left: 20px; color: #ff4757;">
+            ${parseErrors.map(err => `<li>${err}</li>`).join('')}
+          </ul>
+        `;
+        return;
+      }
+
+      if (wordsList.length === 0) {
+        resultDiv.innerHTML = '<div style="color: #ff4757; font-weight: 600;">No valid words found</div>';
+        return;
+      }
+
+      // Send to server
+      try {
+        resultDiv.innerHTML = '<div style="color: #667eea; font-weight: 600;">Adding words...</div>';
+
+        const response = await fetch('/api/words/bulk', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ wordsList })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          let resultHTML = `<div style="color: #38ef7d; font-weight: 600;">✓ Successfully added ${data.added} word(s)!</div>`;
+
+          if (data.errors) {
+            resultHTML += `
+              <div style="color: #ff4757; font-weight: 600; margin-top: 10px;">Errors:</div>
+              <ul style="margin-left: 20px; color: #ff4757;">
+                ${data.errors.map(err => `<li>${err}</li>`).join('')}
+              </ul>
+            `;
+          }
+
+          resultDiv.innerHTML = resultHTML;
+
+          // Clear form and reload
+          document.getElementById('bulkAddForm').reset();
+          loadWords();
+        } else {
+          resultDiv.innerHTML = `<div style="color: #ff4757; font-weight: 600;">Error: ${data.error}</div>`;
+        }
+      } catch (error) {
+        console.error('Error bulk adding words:', error);
+        resultDiv.innerHTML = '<div style="color: #ff4757; font-weight: 600;">Failed to add words</div>';
+      }
+    });
+
+    // Load and display words
+    async function loadWords() {
+      try {
+        const response = await fetch('/api/words');
+        const words = await response.json();
+
+        document.getElementById('wordCount').textContent = `Total Words: ${words.length}`;
+
+        const wordsList = document.getElementById('wordsList');
+        wordsList.innerHTML = words.map(word => `
+          <div class="word-card">
+            <div class="word-header">
+              <div>
+                <span class="word-title">${word.word}</span>
+                <span class="part-of-speech">${word.partOfSpeech}</span>
+              </div>
+              <button class="delete-btn" onclick="deleteWord(${word.id})">Delete</button>
+            </div>
+            <div class="word-definition">${word.definition}</div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading words:', error);
+      }
+    }
+
+    // Delete word
+    async function deleteWord(id) {
+      if (!confirm('Are you sure you want to delete this word?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/words/${id}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          loadWords();
+        }
+      } catch (error) {
+        console.error('Error deleting word:', error);
+        alert('Failed to delete word');
+      }
+    }
+  </script>
+</body>
+</html>

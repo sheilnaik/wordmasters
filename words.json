@@ -1,0 +1,134 @@
+[
+  {
+    "id": 1,
+    "word": "abundant",
+    "partOfSpeech": "adjective",
+    "definition": "existing or available in large quantities; plentiful"
+  },
+  {
+    "id": 2,
+    "word": "meticulous",
+    "partOfSpeech": "adjective",
+    "definition": "showing great attention to detail; very careful and precise"
+  },
+  {
+    "id": 3,
+    "word": "eloquent",
+    "partOfSpeech": "adjective",
+    "definition": "fluent or persuasive in speaking or writing"
+  },
+  {
+    "id": 4,
+    "word": "benevolent",
+    "partOfSpeech": "adjective",
+    "definition": "well meaning and kindly"
+  },
+  {
+    "id": 5,
+    "word": "diligent",
+    "partOfSpeech": "adjective",
+    "definition": "having or showing care and conscientiousness in one's work or duties"
+  },
+  {
+    "id": 6,
+    "word": "frugal",
+    "partOfSpeech": "adjective",
+    "definition": "sparing or economical with regard to money or food"
+  },
+  {
+    "id": 7,
+    "word": "gregarious",
+    "partOfSpeech": "adjective",
+    "definition": "fond of company; sociable"
+  },
+  {
+    "id": 8,
+    "word": "jubilant",
+    "partOfSpeech": "adjective",
+    "definition": "feeling or expressing great happiness and triumph"
+  },
+  {
+    "id": 9,
+    "word": "lethargic",
+    "partOfSpeech": "adjective",
+    "definition": "affected by lethargy; sluggish and apathetic"
+  },
+  {
+    "id": 10,
+    "word": "obstinate",
+    "partOfSpeech": "adjective",
+    "definition": "stubbornly refusing to change one's opinion or chosen course of action"
+  },
+  {
+    "id": 11,
+    "word": "resilient",
+    "partOfSpeech": "adjective",
+    "definition": "able to withstand or recover quickly from difficult conditions"
+  },
+  {
+    "id": 12,
+    "word": "tenacious",
+    "partOfSpeech": "adjective",
+    "definition": "tending to keep a firm hold of something; clinging or adhering closely"
+  },
+  {
+    "id": 13,
+    "word": "versatile",
+    "partOfSpeech": "adjective",
+    "definition": "able to adapt or be adapted to many different functions or activities"
+  },
+  {
+    "id": 14,
+    "word": "whimsical",
+    "partOfSpeech": "adjective",
+    "definition": "playfully quaint or fanciful, especially in an appealing and amusing way"
+  },
+  {
+    "id": 15,
+    "word": "zealous",
+    "partOfSpeech": "adjective",
+    "definition": "having or showing zeal; fervent or enthusiastic"
+  },
+  {
+    "id": 16,
+    "word": "diminish",
+    "partOfSpeech": "verb",
+    "definition": "make or become less"
+  },
+  {
+    "id": 17,
+    "word": "flourish",
+    "partOfSpeech": "verb",
+    "definition": "grow or develop in a healthy or vigorous way"
+  },
+  {
+    "id": 18,
+    "word": "persevere",
+    "partOfSpeech": "verb",
+    "definition": "continue in a course of action even in the face of difficulty"
+  },
+  {
+    "id": 19,
+    "word": "scrutinize",
+    "partOfSpeech": "verb",
+    "definition": "examine or inspect closely and thoroughly"
+  },
+  {
+    "id": 20,
+    "word": "reconcile",
+    "partOfSpeech": "verb",
+    "definition": "restore friendly relations between; make or show to be compatible"
+  },
+  {
+    "id": 21,
+    "word": "door",
+    "partOfSpeech": "noun",
+    "definition": "entry way into a room"
+  },
+  {
+    "id": 22,
+    "word": "window",
+    "partOfSpeech": "noun",
+    "definition": "view in and out of a room"
+  }
+]
