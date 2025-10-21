@@ -6,7 +6,7 @@
   <title>WordMasters Challenge</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -15,8 +15,8 @@
     }
 
     body {
-      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #EC4899 100%);
+      font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #4FC3F7 0%, #6BCB77 50%, #FFD93D 100%);
       height: 100vh;
       overflow: hidden;
       position: relative;
@@ -53,11 +53,11 @@
     }
 
     .title {
-      font-family: 'Baloo 2', cursive;
+      font-family: 'Fredoka', cursive;
       font-size: clamp(2em, 8vw, 3.5em);
-      font-weight: 800;
-      color: white;
-      text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+      font-weight: 700;
+      color: #2C3E50;
+      text-shadow: 3px 3px 0px #FFD93D, 6px 6px 0px rgba(0, 0, 0, 0.1);
       margin-bottom: 10px;
       letter-spacing: 0.02em;
     }
@@ -74,17 +74,18 @@
       background: white;
       backdrop-filter: blur(10px);
       padding: 12px 24px;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border-radius: 20px;
+      box-shadow: 0 4px 0px #2C3E50;
       font-size: clamp(0.95em, 3vw, 1.2em);
-      font-weight: 600;
-      color: #4F46E5;
+      font-weight: 700;
+      color: #2C3E50;
       transition: all 0.3s ease;
+      border: 3px solid #2C3E50;
     }
 
     .score-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 0px #2C3E50;
     }
 
     .game-container {
@@ -103,10 +104,10 @@
       backdrop-filter: blur(20px);
       border-radius: 24px;
       padding: clamp(24px, 5vw, 40px);
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 8px 0px #2C3E50;
       margin-bottom: 24px;
       width: 100%;
-      border: 3px solid rgba(255, 255, 255, 0.5);
+      border: 4px solid #2C3E50;
       transform: translateY(20px);
       opacity: 0;
       animation: slideIn 0.4s ease-out forwards;
@@ -129,10 +130,14 @@
     }
 
     .target-word {
-      color: #7C3AED;
-      font-weight: 700;
+      color: #FF6B6B;
+      font-weight: 800;
       position: relative;
       display: inline-block;
+      background: linear-gradient(135deg, #FF6B6B 0%, #FFD93D 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .target-word::after {
@@ -141,8 +146,8 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 3px;
-      background: linear-gradient(90deg, #7C3AED, #EC4899);
+      height: 4px;
+      background: linear-gradient(90deg, #FF6B6B, #FFD93D);
       border-radius: 2px;
     }
 
@@ -156,24 +161,23 @@
 
     .choice-btn {
       background: white;
-      color: #1F2937;
-      border: 3px solid #E5E7EB;
+      color: #2C3E50;
+      border: 4px solid #2C3E50;
       padding: clamp(16px, 3vw, 20px);
       border-radius: 16px;
       font-size: clamp(1em, 2.5vw, 1.2em);
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 6px 0px #2C3E50;
       position: relative;
       overflow: hidden;
     }
 
     .choice-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
-      border-color: #7C3AED;
-      background: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 0px #2C3E50;
+      background: #FFD93D;
     }
 
     .choice-btn:active {
@@ -182,37 +186,38 @@
 
     .choice-number {
       display: inline-block;
-      background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
+      background: #FF6B6B;
       color: white;
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
       text-align: center;
-      line-height: 28px;
+      line-height: 32px;
       margin-right: 12px;
-      font-size: 0.85em;
-      font-weight: 700;
+      font-size: 0.9em;
+      font-weight: 800;
+      box-shadow: 0 3px 0px #C53030;
     }
 
     .hint-btn {
       background: white;
-      color: #7C3AED;
-      border: 3px solid #7C3AED;
+      color: #2C3E50;
+      border: 4px solid #2C3E50;
       padding: 12px 24px;
-      border-radius: 12px;
+      border-radius: 16px;
       font-size: clamp(0.95em, 2.5vw, 1.1em);
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 5px 0px #2C3E50;
       transition: all 0.2s;
       margin-bottom: 10px;
     }
 
     .hint-btn:hover {
-      background: #7C3AED;
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
+      background: #A8E6CF;
+      color: #2C3E50;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 0px #2C3E50;
     }
 
     .hint-btn:disabled {
@@ -222,17 +227,17 @@
     }
 
     .hint-box {
-      background: #FEF3C7;
+      background: #FFF9E6;
       backdrop-filter: blur(10px);
-      border: 3px solid #FBBF24;
+      border: 4px solid #FFD93D;
       border-radius: 16px;
       padding: 20px;
       margin-top: 15px;
       font-size: clamp(0.95em, 2vw, 1.1em);
-      color: #92400E;
-      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+      color: #2C3E50;
+      box-shadow: 0 5px 0px #FFD93D;
       animation: fadeIn 0.3s ease-out;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .feedback-overlay {
@@ -302,28 +307,31 @@
     }
 
     .next-btn {
-      background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
+      background: #6BCB77;
       color: white;
-      border: none;
+      border: 4px solid #2C3E50;
       padding: 14px 36px;
-      border-radius: 12px;
+      border-radius: 16px;
       font-size: clamp(1em, 3vw, 1.2em);
-      font-weight: 600;
+      font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+      box-shadow: 0 6px 0px #2C3E50;
       transition: all 0.2s;
     }
 
     .next-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
+      transform: translateY(-3px);
+      box-shadow: 0 9px 0px #2C3E50;
+      background: #4FC3F7;
     }
 
     .loading {
       text-align: center;
-      color: white;
+      color: #2C3E50;
       font-size: clamp(1.5em, 4vw, 2em);
+      font-weight: 700;
       animation: pulse 1.5s ease-in-out infinite;
+      text-shadow: 2px 2px 0px #FFD93D;
     }
 
     .admin-link {
@@ -332,30 +340,30 @@
       right: 20px;
       background: white;
       backdrop-filter: blur(10px);
-      color: #7C3AED;
+      color: #2C3E50;
       padding: 10px 20px;
-      border-radius: 12px;
+      border-radius: 16px;
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 0.95em;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 0px #2C3E50;
       transition: all 0.2s;
       z-index: 100;
-      border: 2px solid rgba(124, 58, 237, 0.3);
+      border: 4px solid #2C3E50;
     }
 
     .admin-link:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
-      border-color: #7C3AED;
+      transform: translateY(-3px);
+      box-shadow: 0 7px 0px #2C3E50;
+      background: #A8E6CF;
     }
 
     .correct {
-      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      background: linear-gradient(135deg, #6BCB77 0%, #4FC3F7 100%);
     }
 
     .incorrect {
-      background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+      background: linear-gradient(135deg, #FF6B6B 0%, #FFA07A 100%);
     }
 
     /* Confetti */
