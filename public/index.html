@@ -319,7 +319,7 @@
 
     .feedback-text {
       font-size: clamp(1em, 3vw, 1.15em);
-      color: #4a5568;
+      color: #1a202c;
       line-height: 1.6;
     }
 
@@ -1054,12 +1054,12 @@
       // Build definition display
       let definitionHTML = `<div style="background: rgba(255, 255, 255, 0.9); border-radius: 12px; padding: 16px; margin: 16px 0; text-align: left; border: 3px solid #FFD93D;">
         <strong style="color: #2C3E50; font-size: 1.1em;">${word.word}</strong>
-        <span style="color: #666;">(${word.partOfSpeech})</span>
+        <span style="color: #1a202c;">(${word.partOfSpeech})</span>
         <br><br>
         <span style="color: #2C3E50;">${word.definition}</span>`;
 
       if (word.example) {
-        definitionHTML += `<br><br><em style="color: #4a5568;">"${word.example}"</em>`;
+        definitionHTML += `<br><br><em style="color: #1a202c;">"${word.example}"</em>`;
       }
 
       definitionHTML += `</div>`;
