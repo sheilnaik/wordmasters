@@ -22,6 +22,12 @@
       position: relative;
     }
 
+    body.modal-open {
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+    }
+
     /* Animated background bubbles */
     .bubble {
       position: absolute;
@@ -265,9 +271,13 @@
       padding: clamp(32px, 5vw, 48px);
       max-width: 560px;
       width: 90%;
+      max-height: 85vh;
       text-align: center;
       animation: slideUp 0.4s ease-out;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     @keyframes slideUp {
@@ -299,10 +309,17 @@
       color: #1a202c;
     }
 
+    .feedback-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      margin-bottom: 20px;
+      -webkit-overflow-scrolling: touch;
+    }
+
     .feedback-text {
       font-size: clamp(1em, 3vw, 1.15em);
       color: #4a5568;
-      margin-bottom: 28px;
       line-height: 1.6;
     }
 
@@ -1085,6 +1102,9 @@
 
     // Show loading overlay
     function showLoadingOverlay() {
+      // Lock body scroll
+      document.body.classList.add('modal-open');
+
       const overlay = document.createElement('div');
       overlay.id = 'loadingOverlay';
       overlay.className = 'feedback-overlay';
@@ -1103,6 +1123,7 @@
 
     // Hide loading overlay
     function hideLoadingOverlay() {
+      // Note: Body scroll lock is maintained because showFeedback will be called right after
       const overlay = document.getElementById('loadingOverlay');
       if (overlay) {
         overlay.remove();
@@ -1111,13 +1132,18 @@
 
     // Show feedback overlay
     function showFeedback(isCorrect, title, text) {
+      // Lock body scroll
+      document.body.classList.add('modal-open');
+
       const overlay = document.createElement('div');
       overlay.className = 'feedback-overlay';
       overlay.innerHTML = `
         <div class="feedback-card ${isCorrect ? 'correct' : 'incorrect'}">
           <div class="feedback-icon">${isCorrect ? '🎉' : '💭'}</div>
           <div class="feedback-title">${title}</div>
-          <div class="feedback-text">${text}</div>
+          <div class="feedback-content">
+            <div class="feedback-text">${text}</div>
+          </div>
           <button class="next-btn" id="nextChallengeBtn">Next Challenge →</button>
         </div>
       `;
@@ -1131,6 +1157,9 @@
 
     // Next question
     function nextQuestion() {
+      // Unlock body scroll
+      document.body.classList.remove('modal-open');
+
       const overlay = document.querySelector('.feedback-overlay');
       if (overlay) {
         overlay.remove();
