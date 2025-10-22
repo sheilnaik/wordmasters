@@ -440,10 +440,19 @@
     @media (max-width: 768px) {
       .container {
         padding: 10px;
+        padding-bottom: 80px; /* Add space for fixed button */
       }
 
       .choices-container {
         grid-template-columns: 1fr;
+      }
+
+      .game-container {
+        padding-bottom: 20px; /* Extra padding for mobile */
+      }
+
+      .hint-btn {
+        margin-bottom: 60px; /* Extra space below hint button on mobile */
       }
     }
 
@@ -657,8 +666,12 @@
       }
 
       .word-selection-btn {
-        padding: 12px 20px;
-        font-size: 0.9em;
+        padding: 10px 16px;
+        font-size: 0.85em;
+        bottom: 10px;
+        right: 10px;
+        border-radius: 16px;
+        gap: 6px;
       }
     }
   </style>
