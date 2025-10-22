@@ -906,6 +906,32 @@
       }
     }
 
+    // Retry helper function
+    async function retryFetch(url, options, maxRetries = 3) {
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          const response = await fetch(url, options);
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `HTTP ${response.status}`);
+          }
+
+          return await response.json();
+        } catch (error) {
+          console.error(`Attempt ${i + 1} failed:`, error);
+
+          // If it's the last retry, throw the error
+          if (i === maxRetries - 1) {
+            throw error;
+          }
+
+          // Wait before retrying (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+        }
+      }
+    }
+
     // Load next question
     async function loadQuestion() {
       const gameContainer = document.getElementById('gameContainer');
@@ -925,6 +951,9 @@
         // Load all words if not already loaded
         if (allWords.length === 0) {
           const wordsResponse = await fetch('/api/words');
+          if (!wordsResponse.ok) {
+            throw new Error('Failed to load words from server');
+          }
           allWords = await wordsResponse.json();
         }
 
@@ -938,14 +967,18 @@
 
         const randomWord = quizWords[Math.floor(Math.random() * quizWords.length)];
 
-        // Generate analogy
-        const analogyResponse = await fetch('/api/generate-analogy', {
+        // Generate analogy with retry logic
+        const analogyData = await retryFetch('/api/generate-analogy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ wordData: randomWord })
         });
 
-        const analogyData = await analogyResponse.json();
+        // Validate response structure
+        if (!analogyData.analogy || !analogyData.correctAnswer || !analogyData.wrongAnswers || !Array.isArray(analogyData.wrongAnswers)) {
+          console.error('Invalid analogy data structure:', analogyData);
+          throw new Error('Received invalid question data');
+        }
 
         // Shuffle answers
         const allAnswers = [analogyData.correctAnswer, ...analogyData.wrongAnswers];
@@ -963,7 +996,27 @@
         renderQuestion();
       } catch (error) {
         console.error('Error loading question:', error);
-        gameContainer.innerHTML = '<div class="loading">Error loading question. Please try again.</div>';
+
+        // Show a more informative error message
+        let errorMessage = 'Error loading question.';
+
+        if (error.message.includes('Failed to fetch')) {
+          errorMessage = 'Network error. Please check your internet connection.';
+        } else if (error.message.includes('Failed to generate analogy') || error.message.includes('HTTP 5')) {
+          errorMessage = 'Server is temporarily busy. Please try again in a moment.';
+        } else if (error.message.includes('invalid question data')) {
+          errorMessage = 'Received incomplete question. Please try again.';
+        }
+
+        gameContainer.innerHTML = `
+          <div class="loading">
+            <div style="color: #FF6B6B; font-weight: 800; margin-bottom: 16px;">⚠️ Oops!</div>
+            <div style="margin-bottom: 20px;">${errorMessage}</div>
+            <button class="next-btn" onclick="loadQuestion()" style="margin: 0 auto;">
+              🔄 Try Again
+            </button>
+          </div>
+        `;
       }
     }
 
