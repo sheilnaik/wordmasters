@@ -246,6 +246,84 @@
       font-weight: 600;
     }
 
+    .hint-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s;
+    }
+
+    .hint-card {
+      background: #FFF9E6;
+      border-radius: 24px;
+      padding: clamp(32px, 5vw, 48px);
+      max-width: 560px;
+      width: 90%;
+      max-height: 85vh;
+      text-align: left;
+      animation: slideUp 0.4s ease-out;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 4px solid #FFD93D;
+    }
+
+    .hint-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 3px solid #FFD93D;
+    }
+
+    .hint-title {
+      font-size: clamp(1.5em, 5vw, 2em);
+      font-weight: 700;
+      color: #2C3E50;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hint-close-btn {
+      background: #FF6B6B;
+      color: white;
+      border: 3px solid #2C3E50;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 1em;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 0px #2C3E50;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .hint-close-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0px #2C3E50;
+      background: #FF5252;
+    }
+
+    .hint-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      font-size: clamp(1em, 3vw, 1.15em);
+      color: #2C3E50;
+      line-height: 1.6;
+      -webkit-overflow-scrolling: touch;
+    }
+
     .feedback-overlay {
       position: fixed;
       top: 0;
@@ -1041,7 +1119,6 @@
         </div>
 
         <button class="hint-btn" onclick="getHint()">💡 Need a Hint? (Press H)</button>
-        <div id="hintBox"></div>
       `;
     }
 
@@ -1049,7 +1126,6 @@
     async function getHint() {
       if (hintUsed) return;
 
-      const hintBox = document.getElementById('hintBox');
       const word = currentQuestion.wordData;
 
       // Show definition immediately
@@ -1059,17 +1135,33 @@
         definitionHTML += `<br><br><em>Example: "${word.example}"</em>`;
       }
 
-      hintBox.innerHTML = `
-        <div class="hint-box">
-          📖 ${definitionHTML}
-          <div class="loading-spinner" style="margin: 15px 0 10px 0;">
-            <div class="loading-dot" style="width: 12px; height: 12px;"></div>
-            <div class="loading-dot" style="width: 12px; height: 12px;"></div>
-            <div class="loading-dot" style="width: 12px; height: 12px;"></div>
+      // Lock body scroll
+      document.body.classList.add('modal-open');
+
+      // Create hint overlay with initial content
+      const overlay = document.createElement('div');
+      overlay.id = 'hintOverlay';
+      overlay.className = 'hint-overlay';
+      overlay.innerHTML = `
+        <div class="hint-card">
+          <div class="hint-header">
+            <div class="hint-title">💡 Hint</div>
+            <button class="hint-close-btn" onclick="closeHint()">✕ Close</button>
           </div>
-          <div>Getting a helpful hint...</div>
+          <div class="hint-content">
+            <div style="margin-bottom: 20px;">
+              📖 ${definitionHTML}
+            </div>
+            <div class="loading-spinner" style="margin: 15px 0 10px 0;">
+              <div class="loading-dot" style="width: 12px; height: 12px;"></div>
+              <div class="loading-dot" style="width: 12px; height: 12px;"></div>
+              <div class="loading-dot" style="width: 12px; height: 12px;"></div>
+            </div>
+            <div>Getting a helpful hint...</div>
+          </div>
         </div>
       `;
+      document.body.appendChild(overlay);
 
       hintUsed = true;
 
@@ -1085,17 +1177,42 @@
         });
 
         const data = await response.json();
-        hintBox.innerHTML = `
-          <div class="hint-box">
-            📖 ${definitionHTML}
+
+        // Update overlay content with hint
+        const hintContentDiv = overlay.querySelector('.hint-content');
+        if (hintContentDiv) {
+          hintContentDiv.innerHTML = `
+            <div style="margin-bottom: 20px;">
+              📖 ${definitionHTML}
+            </div>
             <hr style="border: none; border-top: 2px solid #FFD93D; margin: 15px 0;">
-            💡 ${data.hint}
-          </div>
-        `;
+            <div>
+              💡 ${data.hint}
+            </div>
+          `;
+        }
       } catch (error) {
         console.error('Error getting hint:', error);
         // Keep just the definition if AI hint fails
-        hintBox.innerHTML = `<div class="hint-box">📖 ${definitionHTML}</div>`;
+        const hintContentDiv = overlay.querySelector('.hint-content');
+        if (hintContentDiv) {
+          hintContentDiv.innerHTML = `
+            <div>
+              📖 ${definitionHTML}
+            </div>
+          `;
+        }
+      }
+    }
+
+    // Close hint popup
+    function closeHint() {
+      // Unlock body scroll
+      document.body.classList.remove('modal-open');
+
+      const overlay = document.getElementById('hintOverlay');
+      if (overlay) {
+        overlay.remove();
       }
     }
 
@@ -1245,9 +1362,16 @@
         getHint();
       }
 
-      // Escape to close modal
+      // Escape to close modals
       if (e.key === 'Escape') {
-        closeWordSelection();
+        // Close hint if open
+        const hintOverlay = document.getElementById('hintOverlay');
+        if (hintOverlay) {
+          closeHint();
+        } else {
+          // Otherwise close word selection
+          closeWordSelection();
+        }
       }
     });
 
