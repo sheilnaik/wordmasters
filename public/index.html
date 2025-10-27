@@ -190,14 +190,15 @@
     }
 
     .sentence-blank {
-      color: #4FC3F7;
-      font-weight: 800;
+      color: #1a1a1a;
+      font-weight: 900;
       position: relative;
       display: inline-block;
       padding: 0 10px;
-      background: linear-gradient(135deg, rgba(79, 195, 247, 0.15) 0%, rgba(107, 203, 119, 0.15) 100%);
+      background: #FFD93D;
       border-radius: 8px;
-      border-bottom: 4px solid #4FC3F7;
+      border-bottom: 4px solid #f0a500;
+      text-shadow: none;
     }
 
     .target-word {
@@ -1641,8 +1642,8 @@
 
       definitionHTML += `</div>`;
 
-      // Show the complete sentence
-      const completeSentence = currentSentence.sentence.replace('____', `<strong style="color: ${isCorrect ? '#6BCB77' : '#FF6B6B'};">${selectedAnswer}</strong>`);
+      // Show the complete sentence with readable highlighting
+      const completeSentence = currentSentence.sentence.replace('____', `<strong style="color: #1a1a1a; background: ${isCorrect ? '#FFD93D' : '#FFB3B3'}; padding: 2px 8px; border-radius: 6px; font-weight: 900;">${selectedAnswer}</strong>`);
 
       if (isCorrect) {
         score += 10;
@@ -1654,7 +1655,7 @@
         streak = 0;
         updateScore();
 
-        const correctSentence = currentSentence.sentence.replace('____', `<strong style="color: #6BCB77;">${currentSentence.correctAnswer}</strong>`);
+        const correctSentence = currentSentence.sentence.replace('____', `<strong style="color: #1a1a1a; background: #FFD93D; padding: 2px 8px; border-radius: 6px; font-weight: 900;">${currentSentence.correctAnswer}</strong>`);
         showFeedback(false, "Not quite!", definitionHTML + `<div style="margin: 10px 0; font-size: 1.05em; color: #4a5568;">You chose: ${completeSentence}</div><div style="margin: 10px 0; font-size: 1.05em; color: #2C3E50;">Correct answer: ${correctSentence}</div><br>${currentSentence.explanation}`);
       }
     }
