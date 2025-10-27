@@ -64,8 +64,43 @@
       font-weight: 700;
       color: #2C3E50;
       text-shadow: 3px 3px 0px #FFD93D, 6px 6px 0px rgba(0, 0, 0, 0.1);
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       letter-spacing: 0.02em;
+    }
+
+    .mode-selector {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .mode-btn {
+      background: white;
+      color: #2C3E50;
+      border: 4px solid #2C3E50;
+      padding: 10px 20px;
+      border-radius: 16px;
+      font-size: clamp(0.9em, 2.5vw, 1.05em);
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 0px #2C3E50;
+      transition: all 0.2s ease;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .mode-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 7px 0px #2C3E50;
+      background: #A8E6CF;
+    }
+
+    .mode-btn.active {
+      background: #6BCB77;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0px #2C3E50;
     }
 
     .score-board {
@@ -454,6 +489,141 @@
       }
     }
 
+    /* Flashcard Styles */
+    .flashcard-container {
+      perspective: 1000px;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .flashcard {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      cursor: pointer;
+    }
+
+    .flashcard.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .flashcard-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      background: white;
+      border: 4px solid #2C3E50;
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 8px 0px #2C3E50;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .flashcard-front {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    }
+
+    .flashcard-back {
+      background: linear-gradient(135deg, #A8E6CF 0%, #6BCB77 100%);
+      transform: rotateY(180deg);
+    }
+
+    .flashcard-word {
+      font-family: 'Fredoka', cursive;
+      font-size: clamp(2em, 6vw, 3em);
+      font-weight: 700;
+      color: #2C3E50;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 0px rgba(255, 217, 61, 0.3);
+    }
+
+    .flashcard-pos {
+      font-size: clamp(1em, 3vw, 1.3em);
+      color: #666;
+      font-weight: 600;
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+
+    .flashcard-definition {
+      font-size: clamp(1.1em, 3vw, 1.4em);
+      color: #2C3E50;
+      line-height: 1.6;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .flashcard-example {
+      font-size: clamp(0.95em, 2.5vw, 1.1em);
+      color: #4a5568;
+      font-style: italic;
+      line-height: 1.5;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 3px solid rgba(44, 62, 80, 0.2);
+    }
+
+    .flashcard-hint {
+      font-size: clamp(0.85em, 2vw, 1em);
+      color: #2C3E50;
+      margin-top: 20px;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+
+    .flashcard-controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+
+    .flashcard-btn {
+      background: white;
+      color: #2C3E50;
+      border: 4px solid #2C3E50;
+      padding: 14px 28px;
+      border-radius: 16px;
+      font-size: clamp(1em, 2.5vw, 1.15em);
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 5px 0px #2C3E50;
+      transition: all 0.2s ease;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .flashcard-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 0px #2C3E50;
+    }
+
+    .flashcard-btn.know {
+      background: #6BCB77;
+      color: white;
+    }
+
+    .flashcard-btn.know:hover {
+      background: #5AB767;
+    }
+
+    .flashcard-btn.learning {
+      background: #FFD93D;
+      color: #2C3E50;
+    }
+
+    .flashcard-btn.learning:hover {
+      background: #FFC700;
+    }
+
     @media (max-width: 768px) {
       .container {
         padding: 10px;
@@ -470,6 +640,14 @@
 
       .hint-btn {
         margin-bottom: 60px; /* Extra space below hint button on mobile */
+      }
+
+      .flashcard {
+        height: 350px;
+      }
+
+      .flashcard-face {
+        padding: 30px 20px;
       }
     }
 
@@ -697,11 +875,24 @@
   <div class="container">
     <div class="header">
       <h1 class="title">WordMasters Challenge</h1>
+
+      <!-- Mode Selector -->
+      <div class="mode-selector">
+        <button class="mode-btn active" id="analogyModeBtn" onclick="switchMode('analogy')">
+          🎯 Analogy Quiz
+        </button>
+        <button class="mode-btn" id="flashcardModeBtn" onclick="switchMode('flashcard')">
+          🃏 Flashcards
+        </button>
+      </div>
     </div>
 
     <div class="score-board">
       <div class="score-item">🎯 Score: <span id="score">0</span></div>
       <div class="score-item">🔥 Streak: <span id="streak">0</span></div>
+      <div class="score-item" id="masteryItem" style="display: none;">
+        ⭐ Mastered: <span id="mastered">0</span>/<span id="total">0</span>
+      </div>
     </div>
 
     <div class="game-container" id="gameContainer">
@@ -730,8 +921,13 @@
     let streak = 0;
     let currentQuestion = null;
     let hintUsed = false;
+    let currentMode = 'analogy'; // 'analogy' or 'flashcard'
     let allWords = [];
     let selectedWordIds = new Set();
+    let flashcardQueue = [];
+    let currentFlashcard = null;
+    let masteredWords = new Set();
+    let learningWords = new Set();
 
     // Load selected words from localStorage
     function loadSelectedWords() {
@@ -1228,24 +1424,218 @@
       document.getElementById('streak').textContent = streak;
     }
 
+    // Mode switching
+    function switchMode(mode) {
+      currentMode = mode;
+
+      // Update button states
+      document.getElementById('analogyModeBtn').classList.toggle('active', mode === 'analogy');
+      document.getElementById('flashcardModeBtn').classList.toggle('active', mode === 'flashcard');
+
+      // Update score board visibility
+      document.getElementById('masteryItem').style.display = mode === 'flashcard' ? 'flex' : 'none';
+
+      // Reset and load appropriate content
+      if (mode === 'analogy') {
+        loadQuestion();
+      } else {
+        loadFlashcardMode();
+      }
+    }
+
+    // Flashcard Mode Functions
+    async function loadFlashcardMode() {
+      const gameContainer = document.getElementById('gameContainer');
+
+      gameContainer.innerHTML = `
+        <div class="loading" id="loading">
+          <div class="loading-spinner">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+          </div>
+          <div class="loading-text">Loading flashcards...</div>
+        </div>
+      `;
+
+      try {
+        const wordsResponse = await fetch('/api/words');
+        const allFetchedWords = await wordsResponse.json();
+
+        // Use selected words if any, otherwise use all words
+        if (selectedWordIds.size > 0) {
+          allWords = allFetchedWords.filter(w => selectedWordIds.has(w.id));
+        } else {
+          allWords = allFetchedWords;
+        }
+
+        if (allWords.length === 0) {
+          gameContainer.innerHTML = '<div class="loading">No words available. Please select some words to study.</div>';
+          return;
+        }
+
+        // Initialize flashcard queue with all words
+        flashcardQueue = [...allWords].sort(() => Math.random() - 0.5);
+        updateMasteryDisplay();
+        loadNextFlashcard();
+      } catch (error) {
+        console.error('Error loading flashcards:', error);
+        gameContainer.innerHTML = '<div class="loading">Error loading flashcards. Please try again.</div>';
+      }
+    }
+
+    function loadNextFlashcard() {
+      if (flashcardQueue.length === 0) {
+        // Refill queue with words that need practice (exclude mastered)
+        const wordsToReview = allWords.filter(w => !masteredWords.has(w.id));
+        if (wordsToReview.length === 0) {
+          showAllMasteredMessage();
+          return;
+        }
+        flashcardQueue = [...wordsToReview].sort(() => Math.random() - 0.5);
+      }
+
+      currentFlashcard = flashcardQueue.shift();
+      renderFlashcard();
+    }
+
+    function renderFlashcard() {
+      const gameContainer = document.getElementById('gameContainer');
+      const word = currentFlashcard;
+
+      gameContainer.innerHTML = `
+        <div class="flashcard-container">
+          <div class="flashcard" id="flashcard" onclick="flipCard()">
+            <div class="flashcard-face flashcard-front">
+              <div class="flashcard-word">${word.word}</div>
+              <div class="flashcard-pos">${word.partOfSpeech}</div>
+              <div class="flashcard-hint">Click or press SPACE to flip</div>
+            </div>
+            <div class="flashcard-face flashcard-back">
+              <div class="flashcard-definition">${word.definition}</div>
+              ${word.example ? `<div class="flashcard-example">"${word.example}"</div>` : ''}
+              <div class="flashcard-hint">Click or press SPACE to flip back</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flashcard-controls">
+          <button class="flashcard-btn learning" onclick="markAsLearning()">
+            📚 Still Learning (Press L)
+          </button>
+          <button class="flashcard-btn know" onclick="markAsMastered()">
+            ✅ I Know This! (Press K)
+          </button>
+        </div>
+      `;
+    }
+
+    function flipCard() {
+      const card = document.getElementById('flashcard');
+      if (card) {
+        card.classList.toggle('flipped');
+      }
+    }
+
+    function markAsLearning() {
+      learningWords.add(currentFlashcard.id);
+
+      // Add back to queue for more practice (appear sooner)
+      const insertPosition = Math.floor(Math.random() * Math.min(3, flashcardQueue.length + 1));
+      flashcardQueue.splice(insertPosition, 0, currentFlashcard);
+
+      score += 2;
+      updateScore();
+      loadNextFlashcard();
+    }
+
+    function markAsMastered() {
+      masteredWords.add(currentFlashcard.id);
+      learningWords.delete(currentFlashcard.id);
+
+      score += 10;
+      streak++;
+      updateScore();
+      updateMasteryDisplay();
+
+      // Show celebration for mastery
+      createConfetti();
+
+      loadNextFlashcard();
+    }
+
+    function updateMasteryDisplay() {
+      document.getElementById('mastered').textContent = masteredWords.size;
+      document.getElementById('total').textContent = allWords.length;
+    }
+
+    function showAllMasteredMessage() {
+      const gameContainer = document.getElementById('gameContainer');
+      gameContainer.innerHTML = `
+        <div class="question-card" style="text-align: center;">
+          <div class="feedback-icon" style="font-size: 5em; margin-bottom: 20px;">🎉</div>
+          <div class="feedback-title" style="color: #2C3E50; font-size: 2em; margin-bottom: 15px; font-family: 'Fredoka', cursive;">
+            Amazing Work!
+          </div>
+          <div class="feedback-text" style="font-size: 1.2em; color: #4a5568; margin-bottom: 25px;">
+            You've mastered all ${allWords.length} words! You're a true WordMaster! 🌟
+          </div>
+          <button class="next-btn" onclick="resetFlashcards()">
+            Start Over
+          </button>
+          <button class="flashcard-btn" onclick="switchMode('analogy')" style="margin-top: 15px;">
+            Try Analogy Quiz
+          </button>
+        </div>
+      `;
+      createConfetti();
+    }
+
+    function resetFlashcards() {
+      masteredWords.clear();
+      learningWords.clear();
+      updateMasteryDisplay();
+      loadFlashcardMode();
+    }
+
     // Keyboard controls
     document.addEventListener('keydown', (e) => {
-      if (!currentQuestion) return;
+      if (currentMode === 'analogy') {
+        if (!currentQuestion) return;
 
-      // Number keys 1-4
-      if (e.key >= '1' && e.key <= '4') {
-        const index = parseInt(e.key) - 1;
-        if (currentQuestion.answers[index]) {
-          checkAnswer(currentQuestion.answers[index]);
+        // Number keys 1-4
+        if (e.key >= '1' && e.key <= '4') {
+          const index = parseInt(e.key) - 1;
+          if (currentQuestion.answers[index]) {
+            checkAnswer(currentQuestion.answers[index]);
+          }
+        }
+
+        // H for hint
+        if (e.key.toLowerCase() === 'h') {
+          getHint();
+        }
+      } else if (currentMode === 'flashcard') {
+        if (!currentFlashcard) return;
+
+        // Space to flip
+        if (e.key === ' ') {
+          e.preventDefault();
+          flipCard();
+        }
+
+        // L for learning
+        if (e.key.toLowerCase() === 'l') {
+          markAsLearning();
+        }
+
+        // K for know/mastered
+        if (e.key.toLowerCase() === 'k') {
+          markAsMastered();
         }
       }
 
-      // H for hint
-      if (e.key.toLowerCase() === 'h') {
-        getHint();
-      }
-
-      // Escape to close modal
+      // Escape to close modal (works in both modes)
       if (e.key === 'Escape') {
         closeWordSelection();
       }
