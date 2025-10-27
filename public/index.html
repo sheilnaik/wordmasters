@@ -1542,6 +1542,7 @@
           answers: shuffledAnswers
         };
 
+        hintUsed = false;
         renderSentenceQuestion();
       } catch (error) {
         console.error('Error loading sentence question:', error);
@@ -1568,7 +1569,64 @@
             </button>
           `).join('')}
         </div>
+
+        <button class="hint-btn" onclick="getSentenceHint()">💡 Need a Hint? (Press H)</button>
+        <div id="sentenceHintBox"></div>
       `;
+    }
+
+    async function getSentenceHint() {
+      if (hintUsed) return;
+
+      const hintBox = document.getElementById('sentenceHintBox');
+      const word = currentSentence.wordData;
+
+      // Show definition immediately
+      let definitionHTML = `<strong>${word.word}</strong> (${word.partOfSpeech}): ${word.definition}`;
+
+      if (word.example) {
+        definitionHTML += `<br><br><em>Example: "${word.example}"</em>`;
+      }
+
+      hintBox.innerHTML = `
+        <div class="hint-box">
+          📖 ${definitionHTML}
+          <div class="loading-spinner" style="margin: 15px 0 10px 0;">
+            <div class="loading-dot" style="width: 12px; height: 12px;"></div>
+            <div class="loading-dot" style="width: 12px; height: 12px;"></div>
+            <div class="loading-dot" style="width: 12px; height: 12px;"></div>
+          </div>
+          <div>Getting a helpful hint...</div>
+        </div>
+      `;
+
+      hintUsed = true;
+
+      // Fetch AI-generated hint
+      try {
+        const response = await fetch('/api/generate-sentence-hint', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            wordData: currentSentence.wordData,
+            sentence: currentSentence.sentence,
+            answers: currentSentence.answers
+          })
+        });
+
+        const data = await response.json();
+        hintBox.innerHTML = `
+          <div class="hint-box">
+            📖 ${definitionHTML}
+            <hr style="border: none; border-top: 2px solid #FFD93D; margin: 15px 0;">
+            💡 ${data.hint}
+          </div>
+        `;
+      } catch (error) {
+        console.error('Error getting sentence hint:', error);
+        // Keep just the definition if AI hint fails
+        hintBox.innerHTML = `<div class="hint-box">📖 ${definitionHTML}</div>`;
+      }
     }
 
     async function checkSentenceAnswer(selectedAnswer) {
@@ -1787,6 +1845,11 @@
           if (currentSentence.answers[index]) {
             checkSentenceAnswer(currentSentence.answers[index]);
           }
+        }
+
+        // H for hint
+        if (e.key.toLowerCase() === 'h') {
+          getSentenceHint();
         }
       } else if (currentMode === 'flashcard') {
         if (!currentFlashcard) return;

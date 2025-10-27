@@ -300,6 +300,51 @@ Example for word "meticulous" (meaning very careful and precise):
   }
 });
 
+// Generate hint for sentence builder
+app.post('/api/generate-sentence-hint', async (req, res) => {
+  try {
+    const { wordData, sentence, answers } = req.body;
+
+    const prompt = `A 4th grader is trying to fill in the blank in this sentence: "${sentence}"
+
+The word they're learning is "${wordData.word}" (${wordData.partOfSpeech}): ${wordData.definition}
+
+The answer choices are: ${answers.join(', ')}
+
+Generate a helpful hint that:
+- Guides them toward the correct answer ("${wordData.word}") without revealing it directly
+- Helps them understand which context clues in the sentence matter most
+- Explains what specific meaning or nuance makes "${wordData.word}" the BEST fit
+- Distinguishes "${wordData.word}" from the other plausible choices
+- Is encouraging and educational for a 4th grader
+- Is 2-3 sentences maximum
+
+DO NOT say the answer directly. Instead, help them think about the precise meaning and context.`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a helpful educational assistant providing hints to elementary school students. Guide them to discover the answer themselves.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 150
+    });
+
+    const hint = completion.choices[0].message.content.trim();
+    res.json({ hint });
+  } catch (error) {
+    console.error('Error generating sentence hint:', error);
+    res.status(500).json({ error: 'Failed to generate hint' });
+  }
+});
+
 // Serve HTML pages
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
