@@ -232,10 +232,15 @@ Create a sentence with a blank where "${wordData.word}" should go. The sentence 
 - Have a natural flow when the word is filled in
 - Be 8-15 words long
 
-Also provide 3 wrong answer options that are:
-- The same part of speech as the target word
-- Simple words a 4th grader would know
-- Plausible but don't fit the context as well
+IMPORTANT: Provide 3 wrong answer options that are CHALLENGING:
+- Same part of speech as "${wordData.word}"
+- Similar difficulty/sophistication level to "${wordData.word}" (not simple common words)
+- Could seem plausible in the sentence at first glance
+- Wrong answers should be words that might appear on a 4th grade WordMasters test
+- Make students think carefully about the precise meaning and context
+
+The wrong answers should be sophisticated vocabulary words (not basic words like "happy", "big", "nice").
+Think: synonyms with slightly different meanings, words in the same semantic field, or words with overlapping but distinct uses.
 
 Generate a response in the following JSON format:
 {
@@ -245,12 +250,12 @@ Generate a response in the following JSON format:
   "explanation": "brief explanation of why this word fits the sentence"
 }
 
-Example for word "curious":
+Example for word "meticulous" (meaning very careful and precise):
 {
-  "sentence": "The ____ child asked many questions about how things work.",
-  "correctAnswer": "curious",
-  "wrongAnswers": ["happy", "sleepy", "hungry"],
-  "explanation": "Curious means eager to learn or know about things, which is why the child asks so many questions."
+  "sentence": "The ____ artist spent hours perfecting every tiny detail of the painting.",
+  "correctAnswer": "meticulous",
+  "wrongAnswers": ["diligent", "patient", "talented"],
+  "explanation": "Meticulous means paying very careful attention to details, which describes the artist's precise work on every small part."
 }`;
 
     const completion = await openai.chat.completions.create({
