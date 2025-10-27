@@ -51,6 +51,8 @@
       padding: 20px;
       position: relative;
       z-index: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
     }
 
     .header {
@@ -188,14 +190,15 @@
     }
 
     .sentence-blank {
-      color: #4FC3F7;
-      font-weight: 800;
+      color: #1a1a1a;
+      font-weight: 900;
       position: relative;
       display: inline-block;
       padding: 0 10px;
-      background: linear-gradient(135deg, rgba(79, 195, 247, 0.15) 0%, rgba(107, 203, 119, 0.15) 100%);
+      background: #FFD93D;
       border-radius: 8px;
-      border-bottom: 4px solid #4FC3F7;
+      border-bottom: 4px solid #f0a500;
+      text-shadow: none;
     }
 
     .target-word {
@@ -1542,6 +1545,7 @@
           answers: shuffledAnswers
         };
 
+        hintUsed = false;
         renderSentenceQuestion();
       } catch (error) {
         console.error('Error loading sentence question:', error);
@@ -1568,7 +1572,57 @@
             </button>
           `).join('')}
         </div>
+
+        <button class="hint-btn" onclick="getSentenceHint()">💡 Need a Hint? (Press H)</button>
+        <div id="sentenceHintBox"></div>
       `;
+    }
+
+    async function getSentenceHint() {
+      if (hintUsed) return;
+
+      const hintBox = document.getElementById('sentenceHintBox');
+
+      hintBox.innerHTML = `
+        <div class="hint-box">
+          <div class="loading-spinner" style="margin: 15px 0 10px 0;">
+            <div class="loading-dot" style="width: 12px; height: 12px;"></div>
+            <div class="loading-dot" style="width: 12px; height: 12px;"></div>
+            <div class="loading-dot" style="width: 12px; height: 12px;"></div>
+          </div>
+          <div>Getting a helpful hint...</div>
+        </div>
+      `;
+
+      hintUsed = true;
+
+      // Fetch AI-generated hint
+      try {
+        const response = await fetch('/api/generate-sentence-hint', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            wordData: currentSentence.wordData,
+            sentence: currentSentence.sentence,
+            answers: currentSentence.answers
+          })
+        });
+
+        const data = await response.json();
+        hintBox.innerHTML = `
+          <div class="hint-box">
+            💡 ${data.hint}
+          </div>
+        `;
+
+        // Scroll hint into view after it loads
+        setTimeout(() => {
+          hintBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      } catch (error) {
+        console.error('Error getting sentence hint:', error);
+        hintBox.innerHTML = `<div class="hint-box">❌ Sorry, couldn't load hint. Please try again.</div>`;
+      }
     }
 
     async function checkSentenceAnswer(selectedAnswer) {
@@ -1588,8 +1642,8 @@
 
       definitionHTML += `</div>`;
 
-      // Show the complete sentence
-      const completeSentence = currentSentence.sentence.replace('____', `<strong style="color: ${isCorrect ? '#6BCB77' : '#FF6B6B'};">${selectedAnswer}</strong>`);
+      // Show the complete sentence with readable highlighting
+      const completeSentence = currentSentence.sentence.replace('____', `<strong style="color: #1a1a1a; background: ${isCorrect ? '#FFD93D' : '#FFB3B3'}; padding: 2px 8px; border-radius: 6px; font-weight: 900;">${selectedAnswer}</strong>`);
 
       if (isCorrect) {
         score += 10;
@@ -1601,7 +1655,7 @@
         streak = 0;
         updateScore();
 
-        const correctSentence = currentSentence.sentence.replace('____', `<strong style="color: #6BCB77;">${currentSentence.correctAnswer}</strong>`);
+        const correctSentence = currentSentence.sentence.replace('____', `<strong style="color: #1a1a1a; background: #FFD93D; padding: 2px 8px; border-radius: 6px; font-weight: 900;">${currentSentence.correctAnswer}</strong>`);
         showFeedback(false, "Not quite!", definitionHTML + `<div style="margin: 10px 0; font-size: 1.05em; color: #4a5568;">You chose: ${completeSentence}</div><div style="margin: 10px 0; font-size: 1.05em; color: #2C3E50;">Correct answer: ${correctSentence}</div><br>${currentSentence.explanation}`);
       }
     }
@@ -1787,6 +1841,11 @@
           if (currentSentence.answers[index]) {
             checkSentenceAnswer(currentSentence.answers[index]);
           }
+        }
+
+        // H for hint
+        if (e.key.toLowerCase() === 'h') {
+          getSentenceHint();
         }
       } else if (currentMode === 'flashcard') {
         if (!currentFlashcard) return;
