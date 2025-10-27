@@ -67,6 +67,13 @@ app.post('/api/generate-analogy', async (req, res) => {
   try {
     const { wordData } = req.body;
 
+    if (!wordData || !wordData.word) {
+      console.error('Invalid wordData received:', wordData);
+      return res.status(400).json({ error: 'Invalid word data' });
+    }
+
+    console.log(`Generating analogy for word: ${wordData.word}`);
+
     const prompt = `Create a fun analogy question for a 4th grader. The target word is "${wordData.word}" (${wordData.partOfSpeech}): ${wordData.definition}
 
 IMPORTANT:
@@ -110,10 +117,29 @@ Make sure the analogy is age-appropriate and tests understanding of the word's m
     });
 
     const result = JSON.parse(completion.choices[0].message.content);
+
+    // Validate the response structure
+    if (!result.analogy || !result.correctAnswer || !result.wrongAnswers || !Array.isArray(result.wrongAnswers)) {
+      console.error('Invalid OpenAI response structure:', result);
+      return res.status(500).json({ error: 'Received invalid response from AI' });
+    }
+
+    console.log(`Successfully generated analogy for: ${wordData.word}`);
     res.json(result);
   } catch (error) {
-    console.error('Error generating analogy:', error);
-    res.status(500).json({ error: 'Failed to generate analogy' });
+    console.error('Error generating analogy:', error.message);
+    console.error('Full error:', error);
+
+    // Provide more specific error messages
+    if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+      res.status(503).json({ error: 'Cannot reach OpenAI service' });
+    } else if (error.status === 429) {
+      res.status(429).json({ error: 'Rate limit exceeded. Please try again in a moment.' });
+    } else if (error.status === 401) {
+      res.status(500).json({ error: 'API authentication failed' });
+    } else {
+      res.status(500).json({ error: 'Failed to generate analogy' });
+    }
   }
 });
 

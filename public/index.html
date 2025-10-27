@@ -22,6 +22,12 @@
       position: relative;
     }
 
+    body.modal-open {
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+    }
+
     /* Animated background bubbles */
     .bubble {
       position: absolute;
@@ -300,9 +306,13 @@
       padding: clamp(32px, 5vw, 48px);
       max-width: 560px;
       width: 90%;
+      max-height: 85vh;
       text-align: center;
       animation: slideUp 0.4s ease-out;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     @keyframes slideUp {
@@ -334,10 +344,17 @@
       color: #1a202c;
     }
 
+    .feedback-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      margin-bottom: 20px;
+      -webkit-overflow-scrolling: touch;
+    }
+
     .feedback-text {
       font-size: clamp(1em, 3vw, 1.15em);
-      color: #4a5568;
-      margin-bottom: 28px;
+      color: #1a202c;
       line-height: 1.6;
     }
 
@@ -610,10 +627,19 @@
     @media (max-width: 768px) {
       .container {
         padding: 10px;
+        padding-bottom: 80px; /* Add space for fixed button */
       }
 
       .choices-container {
         grid-template-columns: 1fr;
+      }
+
+      .game-container {
+        padding-bottom: 20px; /* Extra padding for mobile */
+      }
+
+      .hint-btn {
+        margin-bottom: 60px; /* Extra space below hint button on mobile */
       }
 
       .flashcard {
@@ -622,6 +648,225 @@
 
       .flashcard-face {
         padding: 30px 20px;
+      }
+    }
+
+    /* Word Selection Button */
+    .word-selection-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: white;
+      color: #2C3E50;
+      padding: 14px 24px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 1em;
+      box-shadow: 0 6px 0px #2C3E50;
+      transition: all 0.2s;
+      z-index: 100;
+      border: 4px solid #2C3E50;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .word-selection-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 9px 0px #2C3E50;
+      background: #FFD93D;
+    }
+
+    /* Word Selection Modal */
+    .word-selection-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      animation: fadeIn 0.3s;
+      padding: 20px;
+    }
+
+    .word-selection-content {
+      background: white;
+      border-radius: 24px;
+      padding: 32px;
+      max-width: 900px;
+      width: 100%;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      border: 4px solid #2C3E50;
+      box-shadow: 0 12px 0px #2C3E50;
+    }
+
+    .word-selection-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .word-selection-title {
+      font-family: 'Fredoka', cursive;
+      font-size: clamp(1.5em, 5vw, 2em);
+      font-weight: 700;
+      color: #2C3E50;
+      margin: 0;
+    }
+
+    .close-modal-btn {
+      background: #FF6B6B;
+      color: white;
+      border: 3px solid #2C3E50;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 1em;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 0px #2C3E50;
+      transition: all 0.2s;
+    }
+
+    .close-modal-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0px #2C3E50;
+    }
+
+    .word-selection-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .control-btn {
+      background: white;
+      color: #2C3E50;
+      border: 3px solid #2C3E50;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 0.95em;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 0px #2C3E50;
+      transition: all 0.2s;
+    }
+
+    .control-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0px #2C3E50;
+      background: #A8E6CF;
+    }
+
+    .selection-count {
+      background: #FFD93D;
+      color: #2C3E50;
+      border: 3px solid #2C3E50;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 0.95em;
+      font-weight: 700;
+      box-shadow: 0 4px 0px #2C3E50;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .word-list {
+      flex: 1;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+      padding: 4px;
+    }
+
+    .word-checkbox {
+      background: white;
+      color: #2C3E50;
+      border: 3px solid #2C3E50;
+      padding: 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 0px #2C3E50;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      user-select: none;
+    }
+
+    .word-checkbox:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0px #2C3E50;
+      background: #FFF9E6;
+    }
+
+    .word-checkbox.selected {
+      background: #6BCB77;
+      color: white;
+      border-color: #2C3E50;
+    }
+
+    .word-checkbox.selected:hover {
+      background: #4FC3F7;
+    }
+
+    .word-checkbox-indicator {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+
+    .word-checkbox-name {
+      font-size: 1.2em;
+      font-weight: 800;
+      padding-right: 32px;
+    }
+
+    .word-checkbox-pos {
+      font-size: 0.9em;
+      font-weight: 600;
+      opacity: 0.8;
+      font-style: italic;
+    }
+
+    .word-checkbox-definition {
+      font-size: 0.85em;
+      line-height: 1.4;
+      opacity: 0.9;
+    }
+
+    @media (max-width: 768px) {
+      .word-selection-content {
+        padding: 20px;
+        max-height: 90vh;
+      }
+
+      .word-list {
+        grid-template-columns: 1fr;
+      }
+
+      .word-selection-btn {
+        padding: 10px 16px;
+        font-size: 0.85em;
+        bottom: 10px;
+        right: 10px;
+        border-radius: 16px;
+        gap: 6px;
       }
     }
   </style>
@@ -662,6 +907,15 @@
     </div>
   </div>
 
+  <!-- Word Selection Button -->
+  <button class="word-selection-btn" onclick="openWordSelection()">
+    <span>📚</span>
+    <span>Select Words</span>
+  </button>
+
+  <!-- Word Selection Modal (initially hidden) -->
+  <div id="wordSelectionModal" style="display: none;"></div>
+
   <script>
     let score = 0;
     let streak = 0;
@@ -669,10 +923,150 @@
     let hintUsed = false;
     let currentMode = 'analogy'; // 'analogy' or 'flashcard'
     let allWords = [];
+    let selectedWordIds = new Set();
     let flashcardQueue = [];
     let currentFlashcard = null;
     let masteredWords = new Set();
     let learningWords = new Set();
+
+    // Load selected words from localStorage
+    function loadSelectedWords() {
+      const saved = localStorage.getItem('selectedWordIds');
+      if (saved) {
+        try {
+          selectedWordIds = new Set(JSON.parse(saved));
+        } catch (e) {
+          console.error('Error loading selected words:', e);
+          selectedWordIds = new Set();
+        }
+      }
+    }
+
+    // Save selected words to localStorage
+    function saveSelectedWords() {
+      localStorage.setItem('selectedWordIds', JSON.stringify([...selectedWordIds]));
+    }
+
+    // Get filtered words for quiz (selected words if any, otherwise all words)
+    function getQuizWords() {
+      if (selectedWordIds.size === 0) {
+        return allWords;
+      }
+      return allWords.filter(word => selectedWordIds.has(word.id));
+    }
+
+    // Open word selection modal
+    async function openWordSelection() {
+      const modal = document.getElementById('wordSelectionModal');
+
+      // Fetch all words if not already loaded
+      if (allWords.length === 0) {
+        try {
+          const response = await fetch('/api/words');
+          allWords = await response.json();
+        } catch (error) {
+          console.error('Error loading words:', error);
+          alert('Error loading words. Please try again.');
+          return;
+        }
+      }
+
+      renderWordSelectionModal();
+      modal.style.display = 'flex';
+    }
+
+    // Close word selection modal
+    function closeWordSelection() {
+      const modal = document.getElementById('wordSelectionModal');
+      modal.style.display = 'none';
+    }
+
+    // Toggle word selection
+    function toggleWordSelection(wordId) {
+      if (selectedWordIds.has(wordId)) {
+        selectedWordIds.delete(wordId);
+      } else {
+        selectedWordIds.add(wordId);
+      }
+      saveSelectedWords();
+      updateSelectionUI();
+    }
+
+    // Select all words
+    function selectAllWords() {
+      allWords.forEach(word => selectedWordIds.add(word.id));
+      saveSelectedWords();
+      updateSelectionUI();
+    }
+
+    // Deselect all words
+    function deselectAllWords() {
+      selectedWordIds.clear();
+      saveSelectedWords();
+      updateSelectionUI();
+    }
+
+    // Update the selection count and visual state
+    function updateSelectionUI() {
+      const countElement = document.getElementById('selectionCount');
+      if (countElement) {
+        const count = selectedWordIds.size;
+        const total = allWords.length;
+        countElement.textContent = count === 0 ? `All words (${total})` : `${count} of ${total} selected`;
+      }
+
+      // Update all checkbox states
+      allWords.forEach(word => {
+        const checkbox = document.getElementById(`word-${word.id}`);
+        if (checkbox) {
+          if (selectedWordIds.has(word.id)) {
+            checkbox.classList.add('selected');
+          } else {
+            checkbox.classList.remove('selected');
+          }
+        }
+      });
+    }
+
+    // Render word selection modal
+    function renderWordSelectionModal() {
+      const modal = document.getElementById('wordSelectionModal');
+      const count = selectedWordIds.size;
+      const total = allWords.length;
+
+      modal.className = 'word-selection-modal';
+      modal.innerHTML = `
+        <div class="word-selection-content">
+          <div class="word-selection-header">
+            <h2 class="word-selection-title">Select Words to Study</h2>
+            <button class="close-modal-btn" onclick="closeWordSelection()">✕ Close</button>
+          </div>
+
+          <div class="word-selection-controls">
+            <button class="control-btn" onclick="selectAllWords()">✓ Select All</button>
+            <button class="control-btn" onclick="deselectAllWords()">✗ Deselect All</button>
+            <div class="selection-count" id="selectionCount">
+              ${count === 0 ? `All words (${total})` : `${count} of ${total} selected`}
+            </div>
+          </div>
+
+          <div class="word-list">
+            ${allWords.map(word => `
+              <div
+                class="word-checkbox ${selectedWordIds.has(word.id) ? 'selected' : ''}"
+                id="word-${word.id}"
+                onclick="toggleWordSelection(${word.id})"
+              >
+                <span class="word-checkbox-indicator">${selectedWordIds.has(word.id) ? '☑' : '☐'}</span>
+                <div class="word-checkbox-name">${word.word}</div>
+                <div class="word-checkbox-pos">${word.partOfSpeech}</div>
+                <div class="word-checkbox-definition">${word.definition}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
 
     // Create animated background bubbles
     function createBubbles() {
@@ -708,6 +1102,32 @@
       }
     }
 
+    // Retry helper function
+    async function retryFetch(url, options, maxRetries = 3) {
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          const response = await fetch(url, options);
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `HTTP ${response.status}`);
+          }
+
+          return await response.json();
+        } catch (error) {
+          console.error(`Attempt ${i + 1} failed:`, error);
+
+          // If it's the last retry, throw the error
+          if (i === maxRetries - 1) {
+            throw error;
+          }
+
+          // Wait before retrying (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+        }
+      }
+    }
+
     // Load next question
     async function loadQuestion() {
       const gameContainer = document.getElementById('gameContainer');
@@ -724,25 +1144,37 @@
       `;
 
       try {
-        // Get random word
-        const wordsResponse = await fetch('/api/words');
-        const words = await wordsResponse.json();
+        // Load all words if not already loaded
+        if (allWords.length === 0) {
+          const wordsResponse = await fetch('/api/words');
+          if (!wordsResponse.ok) {
+            throw new Error('Failed to load words from server');
+          }
+          allWords = await wordsResponse.json();
+        }
 
-        if (words.length === 0) {
-          gameContainer.innerHTML = '<div class="loading">No words available. Please add words in the admin panel.</div>';
+        // Get quiz words (filtered by selection or all words)
+        const quizWords = getQuizWords();
+
+        if (quizWords.length === 0) {
+          gameContainer.innerHTML = '<div class="loading">No words selected for quiz. Please select some words using the "Select Words" button.</div>';
           return;
         }
 
-        const randomWord = words[Math.floor(Math.random() * words.length)];
+        const randomWord = quizWords[Math.floor(Math.random() * quizWords.length)];
 
-        // Generate analogy
-        const analogyResponse = await fetch('/api/generate-analogy', {
+        // Generate analogy with retry logic
+        const analogyData = await retryFetch('/api/generate-analogy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ wordData: randomWord })
         });
 
-        const analogyData = await analogyResponse.json();
+        // Validate response structure
+        if (!analogyData.analogy || !analogyData.correctAnswer || !analogyData.wrongAnswers || !Array.isArray(analogyData.wrongAnswers)) {
+          console.error('Invalid analogy data structure:', analogyData);
+          throw new Error('Received invalid question data');
+        }
 
         // Shuffle answers
         const allAnswers = [analogyData.correctAnswer, ...analogyData.wrongAnswers];
@@ -760,7 +1192,27 @@
         renderQuestion();
       } catch (error) {
         console.error('Error loading question:', error);
-        gameContainer.innerHTML = '<div class="loading">Error loading question. Please try again.</div>';
+
+        // Show a more informative error message
+        let errorMessage = 'Error loading question.';
+
+        if (error.message.includes('Failed to fetch')) {
+          errorMessage = 'Network error. Please check your internet connection.';
+        } else if (error.message.includes('Failed to generate analogy') || error.message.includes('HTTP 5')) {
+          errorMessage = 'Server is temporarily busy. Please try again in a moment.';
+        } else if (error.message.includes('invalid question data')) {
+          errorMessage = 'Received incomplete question. Please try again.';
+        }
+
+        gameContainer.innerHTML = `
+          <div class="loading">
+            <div style="color: #FF6B6B; font-weight: 800; margin-bottom: 16px;">⚠️ Oops!</div>
+            <div style="margin-bottom: 20px;">${errorMessage}</div>
+            <button class="next-btn" onclick="loadQuestion()" style="margin: 0 auto;">
+              🔄 Try Again
+            </button>
+          </div>
+        `;
       }
     }
 
@@ -851,12 +1303,12 @@
       // Build definition display
       let definitionHTML = `<div style="background: rgba(255, 255, 255, 0.9); border-radius: 12px; padding: 16px; margin: 16px 0; text-align: left; border: 3px solid #FFD93D;">
         <strong style="color: #2C3E50; font-size: 1.1em;">${word.word}</strong>
-        <span style="color: #666;">(${word.partOfSpeech})</span>
+        <span style="color: #1a202c;">(${word.partOfSpeech})</span>
         <br><br>
         <span style="color: #2C3E50;">${word.definition}</span>`;
 
       if (word.example) {
-        definitionHTML += `<br><br><em style="color: #4a5568;">"${word.example}"</em>`;
+        definitionHTML += `<br><br><em style="color: #1a202c;">"${word.example}"</em>`;
       }
 
       definitionHTML += `</div>`;
@@ -899,6 +1351,9 @@
 
     // Show loading overlay
     function showLoadingOverlay() {
+      // Lock body scroll
+      document.body.classList.add('modal-open');
+
       const overlay = document.createElement('div');
       overlay.id = 'loadingOverlay';
       overlay.className = 'feedback-overlay';
@@ -917,6 +1372,7 @@
 
     // Hide loading overlay
     function hideLoadingOverlay() {
+      // Note: Body scroll lock is maintained because showFeedback will be called right after
       const overlay = document.getElementById('loadingOverlay');
       if (overlay) {
         overlay.remove();
@@ -925,13 +1381,18 @@
 
     // Show feedback overlay
     function showFeedback(isCorrect, title, text) {
+      // Lock body scroll
+      document.body.classList.add('modal-open');
+
       const overlay = document.createElement('div');
       overlay.className = 'feedback-overlay';
       overlay.innerHTML = `
         <div class="feedback-card ${isCorrect ? 'correct' : 'incorrect'}">
           <div class="feedback-icon">${isCorrect ? '🎉' : '💭'}</div>
           <div class="feedback-title">${title}</div>
-          <div class="feedback-text">${text}</div>
+          <div class="feedback-content">
+            <div class="feedback-text">${text}</div>
+          </div>
           <button class="next-btn" id="nextChallengeBtn">Next Challenge →</button>
         </div>
       `;
@@ -945,6 +1406,9 @@
 
     // Next question
     function nextQuestion() {
+      // Unlock body scroll
+      document.body.classList.remove('modal-open');
+
       const overlay = document.querySelector('.feedback-overlay');
       if (overlay) {
         overlay.remove();
@@ -959,44 +1423,6 @@
       document.getElementById('score').textContent = score;
       document.getElementById('streak').textContent = streak;
     }
-
-    // Keyboard controls
-    document.addEventListener('keydown', (e) => {
-      if (currentMode === 'analogy') {
-        if (!currentQuestion) return;
-
-        // Number keys 1-4
-        if (e.key >= '1' && e.key <= '4') {
-          const index = parseInt(e.key) - 1;
-          if (currentQuestion.answers[index]) {
-            checkAnswer(currentQuestion.answers[index]);
-          }
-        }
-
-        // H for hint
-        if (e.key.toLowerCase() === 'h') {
-          getHint();
-        }
-      } else if (currentMode === 'flashcard') {
-        if (!currentFlashcard) return;
-
-        // Space to flip
-        if (e.key === ' ') {
-          e.preventDefault();
-          flipCard();
-        }
-
-        // L for learning
-        if (e.key.toLowerCase() === 'l') {
-          markAsLearning();
-        }
-
-        // K for know/mastered
-        if (e.key.toLowerCase() === 'k') {
-          markAsMastered();
-        }
-      }
-    });
 
     // Mode switching
     function switchMode(mode) {
@@ -1034,10 +1460,17 @@
 
       try {
         const wordsResponse = await fetch('/api/words');
-        allWords = await wordsResponse.json();
+        const allFetchedWords = await wordsResponse.json();
+
+        // Use selected words if any, otherwise use all words
+        if (selectedWordIds.size > 0) {
+          allWords = allFetchedWords.filter(w => selectedWordIds.has(w.id));
+        } else {
+          allWords = allFetchedWords;
+        }
 
         if (allWords.length === 0) {
-          gameContainer.innerHTML = '<div class="loading">No words available. Please add words in the admin panel.</div>';
+          gameContainer.innerHTML = '<div class="loading">No words available. Please select some words to study.</div>';
           return;
         }
 
@@ -1165,7 +1598,51 @@
       loadFlashcardMode();
     }
 
-    // Start game
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+      if (currentMode === 'analogy') {
+        if (!currentQuestion) return;
+
+        // Number keys 1-4
+        if (e.key >= '1' && e.key <= '4') {
+          const index = parseInt(e.key) - 1;
+          if (currentQuestion.answers[index]) {
+            checkAnswer(currentQuestion.answers[index]);
+          }
+        }
+
+        // H for hint
+        if (e.key.toLowerCase() === 'h') {
+          getHint();
+        }
+      } else if (currentMode === 'flashcard') {
+        if (!currentFlashcard) return;
+
+        // Space to flip
+        if (e.key === ' ') {
+          e.preventDefault();
+          flipCard();
+        }
+
+        // L for learning
+        if (e.key.toLowerCase() === 'l') {
+          markAsLearning();
+        }
+
+        // K for know/mastered
+        if (e.key.toLowerCase() === 'k') {
+          markAsMastered();
+        }
+      }
+
+      // Escape to close modal (works in both modes)
+      if (e.key === 'Escape') {
+        closeWordSelection();
+      }
+    });
+
+    // Initialize and start game
+    loadSelectedWords();
     loadQuestion();
   </script>
 </body>
