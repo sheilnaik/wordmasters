@@ -1445,9 +1445,17 @@
       if (overlay) {
         overlay.remove();
       }
-      // Force a fresh load
-      currentQuestion = null;
-      loadQuestion();
+
+      // Force a fresh load based on current mode
+      if (currentMode === 'analogy') {
+        currentQuestion = null;
+        loadQuestion();
+      } else if (currentMode === 'sentence') {
+        currentSentence = null;
+        loadSentenceQuestion();
+      } else if (currentMode === 'flashcard') {
+        loadFlashcardMode();
+      }
     }
 
     // Update score
