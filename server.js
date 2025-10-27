@@ -212,6 +212,94 @@ Generate a brief, encouraging explanation (2-3 sentences) for a 4th grader expla
   }
 });
 
+// Generate context sentence with multiple choice
+app.post('/api/generate-sentence', async (req, res) => {
+  try {
+    const { wordData } = req.body;
+
+    if (!wordData || !wordData.word) {
+      console.error('Invalid wordData received:', wordData);
+      return res.status(400).json({ error: 'Invalid word data' });
+    }
+
+    console.log(`Generating context sentence for word: ${wordData.word}`);
+
+    const prompt = `Create a context sentence quiz for a 4th grader to practice the word "${wordData.word}" (${wordData.partOfSpeech}): ${wordData.definition}
+
+Create a sentence with a blank where "${wordData.word}" should go. The sentence should:
+- Be age-appropriate and interesting for 4th graders
+- Clearly demonstrate the meaning of the word through context
+- Have a natural flow when the word is filled in
+- Be 8-15 words long
+
+IMPORTANT: Provide 3 wrong answer options that are CHALLENGING:
+- Same part of speech as "${wordData.word}"
+- Similar difficulty/sophistication level to "${wordData.word}" (not simple common words)
+- Could seem plausible in the sentence at first glance
+- Wrong answers should be words that might appear on a 4th grade WordMasters test
+- Make students think carefully about the precise meaning and context
+
+The wrong answers should be sophisticated vocabulary words (not basic words like "happy", "big", "nice").
+Think: synonyms with slightly different meanings, words in the same semantic field, or words with overlapping but distinct uses.
+
+Generate a response in the following JSON format:
+{
+  "sentence": "The complete sentence with ____ where the word goes",
+  "correctAnswer": "${wordData.word}",
+  "wrongAnswers": ["wrong word 1", "wrong word 2", "wrong word 3"],
+  "explanation": "brief explanation of why this word fits the sentence"
+}
+
+Example for word "meticulous" (meaning very careful and precise):
+{
+  "sentence": "The ____ artist spent hours perfecting every tiny detail of the painting.",
+  "correctAnswer": "meticulous",
+  "wrongAnswers": ["diligent", "patient", "talented"],
+  "explanation": "Meticulous means paying very careful attention to details, which describes the artist's precise work on every small part."
+}`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a helpful educational assistant creating vocabulary exercises for elementary school students. Always respond with valid JSON only, no additional text.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.8
+    });
+
+    const result = JSON.parse(completion.choices[0].message.content);
+
+    // Validate the response structure
+    if (!result.sentence || !result.correctAnswer || !result.wrongAnswers || !Array.isArray(result.wrongAnswers)) {
+      console.error('Invalid OpenAI response structure:', result);
+      return res.status(500).json({ error: 'Received invalid response from AI' });
+    }
+
+    console.log(`Successfully generated sentence for: ${wordData.word}`);
+    res.json(result);
+  } catch (error) {
+    console.error('Error generating sentence:', error.message);
+    console.error('Full error:', error);
+
+    if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+      res.status(503).json({ error: 'Cannot reach OpenAI service' });
+    } else if (error.status === 429) {
+      res.status(429).json({ error: 'Rate limit exceeded. Please try again in a moment.' });
+    } else if (error.status === 401) {
+      res.status(500).json({ error: 'API authentication failed' });
+    } else {
+      res.status(500).json({ error: 'Failed to generate sentence' });
+    }
+  }
+});
+
 // Serve HTML pages
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

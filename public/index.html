@@ -170,6 +170,34 @@
       line-height: 1.6;
     }
 
+    .sentence-instruction {
+      font-size: clamp(1em, 3vw, 1.2em);
+      color: #666;
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+      font-style: italic;
+    }
+
+    .sentence-text {
+      font-size: clamp(1.3em, 4vw, 1.9em);
+      color: #1F2937;
+      text-align: center;
+      font-weight: 600;
+      line-height: 1.7;
+    }
+
+    .sentence-blank {
+      color: #4FC3F7;
+      font-weight: 800;
+      position: relative;
+      display: inline-block;
+      padding: 0 10px;
+      background: linear-gradient(135deg, rgba(79, 195, 247, 0.15) 0%, rgba(107, 203, 119, 0.15) 100%);
+      border-radius: 8px;
+      border-bottom: 4px solid #4FC3F7;
+    }
+
     .target-word {
       color: #FF6B6B;
       font-weight: 800;
@@ -881,6 +909,9 @@
         <button class="mode-btn active" id="analogyModeBtn" onclick="switchMode('analogy')">
           🎯 Analogy Quiz
         </button>
+        <button class="mode-btn" id="sentenceModeBtn" onclick="switchMode('sentence')">
+          📝 Sentence Builder
+        </button>
         <button class="mode-btn" id="flashcardModeBtn" onclick="switchMode('flashcard')">
           🃏 Flashcards
         </button>
@@ -921,13 +952,14 @@
     let streak = 0;
     let currentQuestion = null;
     let hintUsed = false;
-    let currentMode = 'analogy'; // 'analogy' or 'flashcard'
+    let currentMode = 'analogy'; // 'analogy', 'sentence', or 'flashcard'
     let allWords = [];
     let selectedWordIds = new Set();
     let flashcardQueue = [];
     let currentFlashcard = null;
     let masteredWords = new Set();
     let learningWords = new Set();
+    let currentSentence = null;
 
     // Load selected words from localStorage
     function loadSelectedWords() {
@@ -1413,9 +1445,17 @@
       if (overlay) {
         overlay.remove();
       }
-      // Force a fresh load
-      currentQuestion = null;
-      loadQuestion();
+
+      // Force a fresh load based on current mode
+      if (currentMode === 'analogy') {
+        currentQuestion = null;
+        loadQuestion();
+      } else if (currentMode === 'sentence') {
+        currentSentence = null;
+        loadSentenceQuestion();
+      } else if (currentMode === 'flashcard') {
+        loadFlashcardMode();
+      }
     }
 
     // Update score
@@ -1430,6 +1470,7 @@
 
       // Update button states
       document.getElementById('analogyModeBtn').classList.toggle('active', mode === 'analogy');
+      document.getElementById('sentenceModeBtn').classList.toggle('active', mode === 'sentence');
       document.getElementById('flashcardModeBtn').classList.toggle('active', mode === 'flashcard');
 
       // Update score board visibility
@@ -1438,8 +1479,130 @@
       // Reset and load appropriate content
       if (mode === 'analogy') {
         loadQuestion();
+      } else if (mode === 'sentence') {
+        loadSentenceQuestion();
       } else {
         loadFlashcardMode();
+      }
+    }
+
+    // Sentence Builder Mode Functions
+    async function loadSentenceQuestion() {
+      const gameContainer = document.getElementById('gameContainer');
+
+      gameContainer.innerHTML = `
+        <div class="loading" id="loading">
+          <div class="loading-spinner">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+          </div>
+          <div class="loading-text">Creating your sentence...</div>
+        </div>
+      `;
+
+      try {
+        // Get words list
+        const wordsResponse = await fetch('/api/words');
+        const allFetchedWords = await wordsResponse.json();
+
+        // Use selected words if any, otherwise use all words
+        let wordsToUse;
+        if (selectedWordIds.size > 0) {
+          wordsToUse = allFetchedWords.filter(w => selectedWordIds.has(w.id));
+        } else {
+          wordsToUse = allFetchedWords;
+        }
+
+        if (wordsToUse.length === 0) {
+          gameContainer.innerHTML = '<div class="loading">No words available. Please select some words to study.</div>';
+          return;
+        }
+
+        const randomWord = wordsToUse[Math.floor(Math.random() * wordsToUse.length)];
+
+        // Generate sentence
+        const sentenceResponse = await fetch('/api/generate-sentence', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ wordData: randomWord })
+        });
+
+        const sentenceData = await sentenceResponse.json();
+
+        // Shuffle answers
+        const allAnswers = [sentenceData.correctAnswer, ...sentenceData.wrongAnswers];
+        const shuffledAnswers = allAnswers.sort(() => Math.random() - 0.5);
+
+        currentSentence = {
+          wordData: randomWord,
+          sentence: sentenceData.sentence,
+          correctAnswer: sentenceData.correctAnswer,
+          explanation: sentenceData.explanation,
+          answers: shuffledAnswers
+        };
+
+        renderSentenceQuestion();
+      } catch (error) {
+        console.error('Error loading sentence question:', error);
+        gameContainer.innerHTML = '<div class="loading">Error loading sentence. Please try again.</div>';
+      }
+    }
+
+    function renderSentenceQuestion() {
+      const gameContainer = document.getElementById('gameContainer');
+
+      gameContainer.innerHTML = `
+        <div class="question-card">
+          <div class="sentence-instruction">Fill in the blank with the correct word:</div>
+          <div class="sentence-text">
+            ${currentSentence.sentence.replace('____', '<span class="sentence-blank">____</span>')}
+          </div>
+        </div>
+
+        <div class="choices-container">
+          ${currentSentence.answers.map((answer, index) => `
+            <button class="choice-btn" onclick="checkSentenceAnswer('${answer.replace(/'/g, "\\'")}')">
+              <span class="choice-number">${index + 1}</span>
+              ${answer}
+            </button>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    async function checkSentenceAnswer(selectedAnswer) {
+      const isCorrect = selectedAnswer === currentSentence.correctAnswer;
+      const word = currentSentence.wordData;
+
+      // Build definition display
+      let definitionHTML = `<div style="background: rgba(255, 255, 255, 0.9); border-radius: 12px; padding: 16px; margin: 16px 0; text-align: left; border: 3px solid #FFD93D;">
+        <strong style="color: #2C3E50; font-size: 1.1em;">${word.word}</strong>
+        <span style="color: #666;">(${word.partOfSpeech})</span>
+        <br><br>
+        <span style="color: #2C3E50;">${word.definition}</span>`;
+
+      if (word.example) {
+        definitionHTML += `<br><br><em style="color: #4a5568;">"${word.example}"</em>`;
+      }
+
+      definitionHTML += `</div>`;
+
+      // Show the complete sentence
+      const completeSentence = currentSentence.sentence.replace('____', `<strong style="color: ${isCorrect ? '#6BCB77' : '#FF6B6B'};">${selectedAnswer}</strong>`);
+
+      if (isCorrect) {
+        score += 10;
+        streak++;
+        updateScore();
+        createConfetti();
+        showFeedback(true, "Perfect!", definitionHTML + `<div style="margin: 10px 0; font-size: 1.1em;">${completeSentence}</div><br>${currentSentence.explanation}`);
+      } else {
+        streak = 0;
+        updateScore();
+
+        const correctSentence = currentSentence.sentence.replace('____', `<strong style="color: #6BCB77;">${currentSentence.correctAnswer}</strong>`);
+        showFeedback(false, "Not quite!", definitionHTML + `<div style="margin: 10px 0; font-size: 1.05em; color: #4a5568;">You chose: ${completeSentence}</div><div style="margin: 10px 0; font-size: 1.05em; color: #2C3E50;">Correct answer: ${correctSentence}</div><br>${currentSentence.explanation}`);
       }
     }
 
@@ -1615,6 +1778,16 @@
         if (e.key.toLowerCase() === 'h') {
           getHint();
         }
+      } else if (currentMode === 'sentence') {
+        if (!currentSentence) return;
+
+        // Number keys 1-4 for sentence builder
+        if (e.key >= '1' && e.key <= '4') {
+          const index = parseInt(e.key) - 1;
+          if (currentSentence.answers[index]) {
+            checkSentenceAnswer(currentSentence.answers[index]);
+          }
+        }
       } else if (currentMode === 'flashcard') {
         if (!currentFlashcard) return;
 
@@ -1635,7 +1808,7 @@
         }
       }
 
-      // Escape to close modal (works in both modes)
+      // Escape to close modal (works in all modes)
       if (e.key === 'Escape') {
         closeWordSelection();
       }
